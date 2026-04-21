@@ -4,7 +4,7 @@
 ## What is this?
 By sending a billing request and an order update request at the exact same time, an attacker can pay for 1 item but have 5 recorded in the order.
 
-## How to attack
+## How to Reproduce
 ```bash
 export API="https://nuxbyqip03.execute-api.us-east-1.amazonaws.com/Stage/order"
 export TOKEN= #we add the token 
@@ -40,13 +40,31 @@ Before:
 if response["Item"]["orderStatus"] > 110:
     res = {"status": "err", "msg": "order already paid"}
     return res
+
+update_expr = 'SET {} = :itemList'.format("itemList")
+response = table.update_item(
+    Key={"orderId": orderId, "userId": userId},
+    UpdateExpression=update_expr,
+    ExpressionAttributeValues={':itemList': itemList}
+)
 ```
 
 After:
 ```python
 if response["Item"]["orderStatus"] != 100:
-    res = {"status": "err", "msg": "order cannot be modified"}
-    return res
+    return {"status": "err", "msg": "order cannot be modified"}
+
+try:
+    response = table.update_item(
+        Key={"orderId": orderId, "userId": userId},
+        UpdateExpression="SET itemList = :itemList",
+        ConditionExpression="orderStatus = :open AND attribute_not_exists(paymentTS)",
+        ExpressionAttributeValues={':itemList': itemList, ':open': 100}
+    )
+except Exception as e:
+    return {"status": "err", "msg": "Order cannot be modified (payment in progress or already updated)"}
 ```
 
 This locks the order immediately when billing starts so no updates happen.
+
+![Diagram](assets/AfterFix.png)

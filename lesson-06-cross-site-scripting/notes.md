@@ -4,7 +4,7 @@
 ## What is this?
 The billing endpoint has no rate limiting. Sending 50 requests at the same time overwhelms the service and blocks real users.
 
-## How to attack
+## How to Reproduce
 we set the API URL and token:
 ```bash
 export API="https://nuxbyqip03.execute-api.us-east-1.amazonaws.com/Stage/order"

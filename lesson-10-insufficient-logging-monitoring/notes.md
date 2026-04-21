@@ -4,7 +4,7 @@
 ## What is this?
 When bad requests are sent to the backend, Lambda functions crash and return full stack traces to the user. This leaks internal file names, line numbers and source code.
 
-## How to attack
+## How to Reproduce
 ```bash
 export API="https://nuxbyqip03.execute-api.us-east-1.amazonaws.com/Stage/order"
 export TOKEN= #we add the token 

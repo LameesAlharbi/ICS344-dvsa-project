@@ -4,7 +4,7 @@
 ## What is this?
 The DVSA-SEND-RECEIPT-EMAIL Lambda function has permissions. It can read and write any S3 bucket and any DynamoDB table in the account, even though it only needs to send receipt emails.
 
-## How to attack
+## How to Reproduce
 1. Go to Lambda → DVSA-SEND-RECEIPT-EMAIL → Configuration → Permissions
 2. Click the execution role
 3. Open IAM Policy Simulator and test S3 GetObject and DynamoDB Scan on any resource
