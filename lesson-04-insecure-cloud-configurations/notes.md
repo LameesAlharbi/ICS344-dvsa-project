@@ -53,9 +53,13 @@ Uploading a file:
 
 <img src="assets/raw_trigger_in_terminal.png" width="350">
 
-Attempting to process it:
+Lambda is triggered:
 
-<img src="assets/attempt_to_process_file.png" width="350">
+<img src="assets/lambda_function_active.png" width="350">
+
+Block access is off:
+
+<img src="assets/block_public_access_off.png" width="350">
 
 This shows that:
 * The system processes user's files  
