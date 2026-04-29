@@ -5,16 +5,30 @@
 When bad requests are sent to the backend, Lambda functions crash and return full stack traces to the user. This leaks internal file names, line numbers and source code.
 
 ## How to Reproduce
+1. Set the API URL and token:
 ```bash
 export API="https://nuxbyqip03.execute-api.us-east-1.amazonaws.com/Stage/order"
 export TOKEN= #we add the token 
-export ORDER_ID= #we add oder id
+```
+2. Create order
+```bash
+curl -s "$API" -H "content-type: application/json" -H "authorization: $TOKEN" \
+  -d '{"action":"new","cart-id":"race-cart-001","items":{"1":1}}' | jq
+```
 
-#Trigger billing exception
+3. Save order id
+```bash
+export ORDER_ID= #we add oder id
+```
+
+4. Trigger billing exception
+```bash
 curl -s "$API" -H "content-type: application/json" -H "authorization: $TOKEN" \
   -d '{"action":"billing","order-id":"'"$ORDER_ID"'","data":{"ccn":"4242424242424242","exp":"11/25","cvv":"123"}}' | jq
+```
 
-#Trigger get order exception  
+5. Trigger get order exception
+```bash
 curl -s "$API" -H "content-type: application/json" -H "authorization: $TOKEN" \
   -d '{"action":"get","order-id":"'"$ORDER_ID"'"}' | jq
 ```
@@ -28,6 +42,8 @@ Full stack traces exposing internal file names and source code:
 
 
 ## Fix 1: order_billing.py
+Lambda → DVSA-ORDER-BILLING → Code → order_billing.py
+
 Before:
 ```python
 res = json.loads(req.data)
@@ -47,6 +63,8 @@ except (KeyError, ValueError, Exception) as e:
 ```
 
 ## Fix 2: get_order.py
+Lambda → DVSA-ORDER-GET → Code → get_order.py
+
 Before:
 ```python
 is_admin = json.loads(event.get("isAdmin", "false").lower())
@@ -65,3 +83,6 @@ else:
 After the fix both endpoints return  generic error messages with no details leaked.
 ![Diagram](assets/AfterFix1.png)
 ![Diagram](assets/AfterFix2.png)
+
+## Takeaway
+This lesson highlights the importance of proper error handling in backend systems. Unhandled exceptions can expose sensitive internal details such as file paths, code structure, and implementation logic, which can aid attackers in further exploitation. By catching exceptions and returning generic error messages to users while logging detailed errors internally, the application reduces information leakage and improves overall security.
