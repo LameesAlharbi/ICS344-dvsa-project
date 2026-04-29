@@ -89,3 +89,6 @@ Also removed AmazonSESFullAccess policy.
 ## Verification
 IAM Policy Simulator now shows Denied
 ![Diagram](assets/AfterFix.png)
+
+## Takeaway
+This lesson highlights the importance of the Principle of Least Privilege in serverless applications. Over-privileged functions significantly increase the impact of any compromise, as attackers can inherit excessive permissions and access unrelated resources. By restricting IAM policies to only the required actions and specific resources, the potential damage is minimized.
